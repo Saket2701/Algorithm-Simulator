@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Towers Of Hanoi</title>
+    <link type="text/css" rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            background: linear-gradient(to left, #2b5876, #4e4376);
+            font-family: 'Arial', sans-serif;
+            color: #fff; 
+        }
+
+        #canvas-container {
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        #canvas {
+            width: 800px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid #ccc;
+            margin: 20px auto; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #menu {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        p {
+            font-style: italic;
+        }
+
+        #start button {
+            background-color: #3498db;
+            color: #fff;
+            font-size: 18px;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #start button:hover {
+            background-color: #2e86c1;
+        }
+        
+       
+        .disk {
+            border: 2px solid #3498db; 
+            background-color: #3498db; 
+        }
+
+        .rod {
+            background-color: #ccc;
+            width: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="menu">
+    <h1>Towers Of Hanoi Simulation</h1>
+    <form id="start">
+        <button type="submit">Solve</button>
+    </form>
+</div>
+
+<div id="canvas-container">
+    <canvas id="canvas"></canvas>
+</div>
+
+<script>
+	var start = document.getElementById('start');
+
+start.addEventListener('submit', init);
+
+var linesState = {
+  	lines: [
+	    {id: 0, name: 'Start', disks: [], level: 20, coord: {x: 100, y: 400, w: 200, h: 200}},
+	    {id: 1, name: 'End', disks: [], level: 20, coord: {x: 300, y: 400, w: 200, h: 200}},
+	    {id: 2, name: 'Aux', disks: [], level: 20, coord: {x: 500, y: 400, w: 200, h: 200}}
+  	]
+}
+
+setupDisplay();
+drawLines();
+
+function setupDisplay() {
+	canvas = document.getElementById('canvas');
+	canvas.width = canvas.scrollWidth;
+	canvas.height = canvas.scrollHeight;
+	ctx = canvas.getContext('2d');
+}
+
+function drawLines() {
+	ctx.fillStyle = '#ffffff';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	ctx.lineWidth = 8;
+	linesState.lines.forEach(line => {
+		ctx.moveTo(line.coord.x, line.coord.y);
+	    ctx.lineTo(line.coord.x + line.coord.w, line.coord.y);
+	    ctx.moveTo(line.coord.x + 100, line.coord.y);
+	    ctx.lineTo(line.coord.x + 100, line.coord.y - line.coord.h);
+
+	    ctx.fillStyle = 'black';
+	    ctx.font = '20px Helvetica, Arial, sans-serif';
+	    ctx.textAlign = 'center';
+	    ctx.fillText(line.name, line.coord.x + 100, line.coord.y + 40);
+	});
+
+	ctx.stroke();
+}
+
+function Disk(x, y, width, height, color) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.color = color;
+}
+
+Disk.prototype.draw = function() {
+	ctx.fillStyle = this.color;
+  	ctx.lineWidth = 1;
+  	ctx.fillRect(this.x, this.y, this.width, this.height);
+  	ctx.strokeRect(this.x, this.y, this.width, this.height);
+};
+
+function initDisks(n) {
+	var line = linesState.lines[0].coord;
+	var colors = ['#0074D9', '#0080FF', '#4DA1FF', '#6FA7FF', '#99C2FF', '#C2DFFF', '#E3F0FF', '#F0F7FF', '#F7FBFF', '#FAFDFF'];
+  	var width = 20 * n;
+  	
+  	for(var i = n; i > 0; i--) {
+    	let disk = new Disk((line.w / 2 + (line.w - width) / 2), line.y - linesState.lines[0].level, width, line.h / 10, colors[i - 1]);
+    	linesState.lines[0].disks.push(disk);
+    	linesState.lines[0].level += line.h / 10;
+    	width -= 20;
+  	}
+}
+
+function drawDisks(state) {
+	state.lines.forEach(function(line) {
+    	line.disks.forEach(function(disk) {
+        	disk.draw();
+    	});
+  	});
+}
+
+var delay = 1;
+function moveDisk(from, to) {
+	drawDisks(linesState);
+
+	setTimeout(function() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+      	var movingDisk = from.disks.pop();
+      	movingDisk.x += (to.id - from.id) * 200;
+      	movingDisk.y = 400 - to.level;
+      	to.disks.push(movingDisk);
+      	from.level -= 20;
+      	to.level += 20;
+      	drawLines();
+      	drawDisks(linesState);
+    }, 1000 * delay);
+    
+    delay++;
+}
+
+function hanoi(n, from, to, aux) {
+	if (n >= 1) {
+		hanoi(n - 1, from, aux, to);
+		moveDisk(from, to);
+		hanoi(n - 1, aux, to, from);
+	}
+}
+
+function init(e) {
+	e.preventDefault();
+	start.style.display = 'none';
+	canvas.style.display = 'block';
+	var num = 3;
+	initDisks(num);
+	hanoi(num, ...linesState.lines);
+}
+</script>
+
+</body>
+</html>
