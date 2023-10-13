@@ -572,6 +572,16 @@
                     .card:hover {
                     transform: scale(1.04) rotate(-1deg);
                     }
+
+                    .flex-container {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                     }
+                    .flex-column {
+                    display: flex;
+                    flex-direction: column;
+                    }
             </style>
     </head>
     <body>
@@ -593,7 +603,7 @@
             <div class="shadow"></div>
         </div>
         <div class="flex-container">
-            <div class="row">
+            <div class="flex-column">
                 <a href="/Algorithm-Simulator/linear-search.html"class="flex-item">
                     <button  class="centered-button">
                         <span id="linear-text">LINEAR</span>
@@ -633,6 +643,8 @@
                         <span id="leftArrow" class="arrow"></span>
                         </button>
                 </a>
+            </div>
+                <div class="flex-column">
                 <a href="/Algorithm-Simulator/selection-sort.html" class="flex-item">
                     <button  class="centered-button">
                         <span id="linear-text">SELECTION</span>
@@ -672,6 +684,8 @@
                         <span id="leftArrow" class="arrow"></span>
                     </button>
                 </a>
+                </a>
+                </div>
             </div>
         </div>
 
